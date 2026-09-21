@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Land & Fritid Klub</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap');
+  :root{
+    --brand:#1f7a3d; --brand-deep:#155c2d; --brand-bright:#37a866; --wheat:#c9a24b;
+    --ground:#eef1ea; --surface:#ffffff; --surface-2:#f6f8f3; --ink:#1a231c; --ink-soft:#54615a;
+    --line:#dde3da; --line-strong:#c6d0c2; --good:#1f7a3d; --warn:#b8791b; --risk:#c0562f;
+    --shadow:0 1px 2px rgba(20,40,25,.06), 0 12px 30px rgba(20,50,28,.10); --radius:18px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --brand:#3fae6b; --brand-deep:#2c8a51; --brand-bright:#57c47f; --wheat:#d8b866;
+      --ground:#10140f; --surface:#181d17; --surface-2:#1f261e; --ink:#e9efe6; --ink-soft:#9fae9f;
+      --line:#2b332a; --line-strong:#3a4538; --good:#57c47f; --warn:#e0a94a; --risk:#e07a4e;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.5);
+    }
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html,body{height:100%}
+  body{margin:0; background:var(--ground); color:var(--ink);
+    font-family:"Manrope",system-ui,-apple-system,sans-serif; font-size:15px; line-height:1.45; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(120% 60% at 50% -10%, rgba(55,168,102,.14), transparent 60%); background-attachment:fixed}
+  .wrap{max-width:460px; margin:0 auto; padding:18px 16px}
+  .phone{background:var(--surface); border:1px solid var(--line); border-radius:26px; box-shadow:var(--shadow); overflow:hidden}
+
+  header.brand{background:linear-gradient(160deg,var(--brand-deep),var(--brand)); color:#fff; padding:18px 18px 16px; position:relative}
+  .brandrow{display:flex; align-items:center; gap:11px}
+  .mark{width:38px;height:38px;flex:0 0 auto;display:grid;place-items:center;background:rgba(255,255,255,.14);border-radius:11px}
+  .brand h1{font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:23px; margin:0}
+  .live{position:absolute; top:16px; right:16px; font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; display:flex; align-items:center; gap:5px; color:rgba(255,255,255,.9)}
+  .live .d{width:7px;height:7px;border-radius:50%;background:#6ee7a0;box-shadow:0 0 0 0 rgba(110,231,160,.6); animation:pulse 2s infinite}
+  .live.off .d{background:#e0a94a; animation:none}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(110,231,160,.5)}70%{box-shadow:0 0 0 6px rgba(110,231,160,0)}100%{box-shadow:0 0 0 0 rgba(110,231,160,0)}}
+  .brand p{margin:9px 2px 0; font-size:12px; color:rgba(255,255,255,.85); line-height:1.4}
+  .kpirow{display:flex; gap:8px; margin-top:14px}
+  .kpi{flex:1; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.16); border-radius:12px; padding:9px 10px}
+  .kpi b{display:block; font-size:17px; font-variant-numeric:tabular-nums; font-weight:800}
+  .kpi span{font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:rgba(255,255,255,.8)}
+
+  nav.tabs{display:flex; gap:3px; padding:8px; background:var(--surface-2); border-bottom:1px solid var(--line)}
+  nav.tabs button{flex:1; border:0; background:transparent; color:var(--ink-soft); font-family:inherit; font-weight:700; font-size:13px; padding:9px 4px; border-radius:11px; cursor:pointer}
+  nav.tabs button[aria-selected="true"]{background:var(--surface); color:var(--brand); box-shadow:0 1px 2px rgba(20,40,25,.08)}
+  nav.tabs button:focus-visible{outline:2px solid var(--brand); outline-offset:1px}
+
+  main{padding:16px}
+  .panel{display:flex; flex-direction:column; gap:14px}
+  .eyebrow{font-size:11px; text-transform:uppercase; letter-spacing:.9px; color:var(--ink-soft); font-weight:700; margin:0}
+  h2.sec{font-family:"Fraunces",serif; font-weight:600; font-size:19px; margin:2px 0 0}
+
+  .search{display:flex; gap:8px}
+  input,select{font-family:inherit; font-size:15px; color:var(--ink); background:var(--surface); border:1.5px solid var(--line-strong); border-radius:12px; padding:11px 12px; width:100%}
+  input:focus,select:focus{outline:none; border-color:var(--brand)}
+  .btn{font-family:inherit; font-weight:700; font-size:14px; cursor:pointer; border:0; border-radius:12px; padding:11px 15px; white-space:nowrap; background:var(--brand); color:#fff}
+  .btn:hover{background:var(--brand-deep)} .btn:disabled{opacity:.55; cursor:default}
+  .btn:focus-visible{outline:2px solid var(--ink); outline-offset:2px}
+  .btn.ghost{background:var(--surface-2); color:var(--ink); border:1.5px solid var(--line-strong)}
+  .btn.wheat{background:var(--wheat); color:#3a2c07}
+  .btn.block{width:100%}
+  .btn.sm{padding:8px 12px; font-size:13px; border-radius:10px}
+  .chips{display:flex; flex-wrap:wrap; gap:6px}
+  .chip{font-size:12px; font-weight:600; color:var(--ink-soft); background:var(--surface-2); border:1px solid var(--line); border-radius:20px; padding:5px 11px; cursor:pointer}
+  .chip:hover{border-color:var(--brand); color:var(--brand)}
+  .hint{font-size:12px; color:var(--ink-soft); margin:0}
+
+  .cust{border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--surface)}
+  .cust-head{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:14px; background:var(--surface-2); border-bottom:1px solid var(--line)}
+  .cust-head .who b{font-size:16px; font-weight:800; display:block}
+  .cust-head .who span{font-size:12px; color:var(--ink-soft)}
+  .metaline{display:flex; flex-wrap:wrap; gap:6px; margin-top:7px}
+  .mtag{display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:20px; white-space:nowrap}
+  .mtag svg{width:12px;height:12px}
+  .mtag.imp{background:rgba(31,122,61,.1); color:var(--brand); border:1px solid var(--line-strong)}
+  .mtag.ok{background:rgba(31,122,61,.12); color:var(--good)}
+  .mtag.wait{background:rgba(184,121,27,.14); color:var(--warn)}
+  .mtag.cross{background:var(--surface); color:var(--ink-soft); border:1px solid var(--line-strong)}
+
+  .consent-prompt{margin:12px 14px; padding:12px 14px; border-radius:14px; background:rgba(184,121,27,.1); border:1px solid var(--warn)}
+  .consent-prompt b{font-size:13.5px} .consent-prompt p{margin:4px 0 10px; font-size:12.5px; color:var(--ink-soft)}
+
+  .cats{padding:12px 14px; display:flex; flex-direction:column; gap:11px}
+  .catcard{border:1px solid var(--line); border-radius:14px; overflow:hidden; background:var(--surface)}
+  .catcard.ready{border-color:var(--wheat)}
+  .cc-head{display:flex; align-items:center; gap:9px; padding:10px 12px 8px}
+  .cc-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+  .cc-head b{font-size:14px; font-weight:800} .cc-head .u{font-size:11px; color:var(--ink-soft)}
+  .cc-head .cnt{margin-left:auto; font-size:12px; font-weight:800; color:var(--brand); font-variant-numeric:tabular-nums}
+  .dots{display:grid; grid-template-columns:repeat(10,1fr); gap:5px; padding:0 12px 11px}
+  .dot{aspect-ratio:1; border-radius:50%; display:grid; place-items:center; border:2px dashed var(--line-strong); color:var(--line-strong)}
+  .dot.gift{border-color:var(--wheat); color:var(--wheat)}
+  .dot svg{width:54%;height:54%}
+  .cc-reward{display:flex; align-items:center; gap:9px; padding:9px 12px; background:linear-gradient(120deg,rgba(201,162,75,.18),rgba(55,168,102,.13)); border-top:1px solid var(--wheat)}
+  .cc-reward .tx{flex:1} .cc-reward b{display:block;font-size:12.5px} .cc-reward span{font-size:11px;color:var(--ink-soft)}
+
+  .register{border-top:1px solid var(--line); padding:13px 14px; background:var(--surface-2)}
+  .register .lbl{font-size:12px;font-weight:700;color:var(--ink-soft)}
+  .register .grid{display:grid; grid-template-columns:1fr 64px; gap:8px; margin-top:9px}
+  .register .grid .full{grid-column:1 / -1}
+
+  .hist{padding:12px 14px 14px; border-top:1px solid var(--line)}
+  .hist h4{margin:0 0 8px; font-size:12px; text-transform:uppercase; letter-spacing:.7px; color:var(--ink-soft)}
+  .hist ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px; max-height:184px; overflow-y:auto}
+  .hist li{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid var(--line)}
+  .hist li:last-child{border-bottom:0}
+  .hist .h-main{font-size:13px; font-weight:600} .hist .h-sub{font-size:11px; color:var(--ink-soft)}
+  .hist .h-amt{font-size:12.5px; font-weight:800; white-space:nowrap} .hist .h-amt.reward{color:var(--warn)}
+
+  .empty{border:1.5px dashed var(--line-strong); border-radius:var(--radius); padding:18px 16px; text-align:center; color:var(--ink-soft)}
+  .empty b{color:var(--ink); font-size:15px}
+  .createbox{margin-top:14px; display:flex; flex-direction:column; gap:9px; text-align:left}
+  .consent-check{display:flex; gap:9px; align-items:flex-start; background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:10px 11px}
+  .consent-check input{width:18px;height:18px;flex:0 0 auto;margin-top:1px;accent-color:var(--brand)}
+  .consent-check label{font-size:11.5px; color:var(--ink-soft); line-height:1.4} .consent-check b{color:var(--ink)}
+
+  .switch{display:flex; align-items:center; gap:8px}
+  .switch label{font-size:12px; color:var(--ink-soft); font-weight:600; white-space:nowrap}
+  .memcard{border-radius:20px; overflow:hidden; color:#fff; background:linear-gradient(150deg,var(--brand-deep),var(--brand) 55%,var(--brand-bright)); box-shadow:var(--shadow); position:relative}
+  .memcard .pat{position:absolute; inset:0; opacity:.16; background:radial-gradient(circle at 85% 15%, #fff 0 2px, transparent 2px) 0 0/26px 26px}
+  .memcard .in{position:relative; padding:18px}
+  .memcard .top{display:flex; justify-content:space-between; align-items:center}
+  .memcard .top small{font-size:10.5px; letter-spacing:1.4px; text-transform:uppercase; opacity:.85}
+  .memcard .name{font-family:"Fraunces",serif; font-size:21px; font-weight:600; margin:12px 0 2px}
+  .memcard .phone{font-size:12.5px; opacity:.85}
+  .memcard .mc-cats{margin-top:15px; display:flex; flex-direction:column; gap:10px}
+  .memcard .mc-cat .l{display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px}
+  .memcard .mc-dots{display:grid; grid-template-columns:repeat(10,1fr); gap:4px}
+  .memcard .md{aspect-ratio:1; border-radius:50%; border:1.5px solid rgba(255,255,255,.5)}
+  .memcard .md.on{background:#fff; border-color:#fff} .memcard .md.gift{border-style:dashed}
+  .memcard .foot{margin-top:14px; font-size:11.5px; opacity:.85}
+
+  .ins-grid{display:grid; grid-template-columns:1fr 1fr; gap:9px}
+  .ins-tile{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px}
+  .ins-tile b{display:block; font-size:20px; font-weight:800; font-variant-numeric:tabular-nums; font-family:"Fraunces",serif}
+  .ins-tile.risk b{color:var(--risk)} .ins-tile span{font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.5px}
+  .block{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:14px}
+  .block h4{margin:0 0 11px; font-size:12px; text-transform:uppercase; letter-spacing:.7px; color:var(--ink-soft)}
+  .toprow{display:flex; align-items:center; gap:10px; padding:6px 0}
+  .toprow .nm{font-size:13px; font-weight:600; width:40%; flex:0 0 auto; display:flex; align-items:center; gap:7px}
+  .toprow .nm i{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  .topbar{flex:1; height:8px; background:var(--surface-2); border-radius:4px; overflow:hidden}
+  .topbar i{display:block; height:100%}
+  .toprow .val{font-size:12.5px; font-weight:800; font-variant-numeric:tabular-nums; width:44px; text-align:right; flex:0 0 auto}
+
+  .center{padding:30px 16px; text-align:center; color:var(--ink-soft); font-size:13px}
+  .spin{width:26px;height:26px;border-radius:50%;border:3px solid var(--line-strong);border-top-color:var(--brand);margin:0 auto 12px;animation:sp .8s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.spin,.live .d{animation:none}}
+
+  .note{max-width:460px; margin:12px auto 0; padding:0 6px; font-size:11px; color:var(--ink-soft); text-align:center; line-height:1.5}
+  #toast{position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--ground); padding:11px 18px; border-radius:30px; font-size:13px; font-weight:600; box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:.25s; z-index:50; max-width:90vw; text-align:center}
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="phone">
+    <header class="brand">
+      <div class="live" id="live"><span class="d"></span><span id="liveText">Live</span></div>
+      <div class="brandrow">
+        <div class="mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3c0 4-2 6-2 9a2 2 0 0 0 4 0c0-3-2-5-2-9Z"/><path d="M12 21v-6M8 12c-1.6.6-3 2-3.5 4M16 12c1.6.6 3 2 3.5 4"/>
+          </svg>
+        </div>
+        <div><h1>Land&nbsp;&amp;&nbsp;Fritid Klub</h1></div>
+      </div>
+      <p>Køb 9 – få den 10. gratis. Kører på butikkens computer, samme optjening i alle butikker.</p>
+      <div class="kpirow">
+        <div class="kpi"><b id="k-members">–</b><span>Medlemmer</span></div>
+        <div class="kpi"><b id="k-active">–</b><span>Aktive</span></div>
+        <div class="kpi"><b id="k-rewards">–</b><span>Gratis varer</span></div>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="kasse" aria-selected="true">Kassen</button>
+      <button role="tab" data-tab="kort" aria-selected="false">Kundekort</button>
+      <button role="tab" data-tab="indsigt" aria-selected="false">Indsigt</button>
+    </nav>
+
+    <main>
+      <section class="panel" data-panel="kasse" role="tabpanel">
+        <div><p class="eyebrow">Personalet ved kassen</p><h2 class="sec">Slå kunde op</h2></div>
+        <form class="search" id="searchForm">
+          <input id="searchInput" inputmode="numeric" autocomplete="off" placeholder="Telefonnr. – 8 cifre" aria-label="Telefonnummer">
+          <button class="btn" type="submit" id="searchBtn">Søg</button>
+        </form>
+        <p class="hint">Prøv en demo-kunde:</p>
+        <div class="chips" id="demoChips"></div>
+        <div id="custView"></div>
+      </section>
+
+      <section class="panel" data-panel="kort" role="tabpanel" hidden>
+        <div class="switch"><label for="cardSelect">Vis kort for:</label><select id="cardSelect"></select></div>
+        <div id="cardView"></div>
+        <p class="hint">Kundens eget kort – samme optjening uanset hvilken butik de handler i.</p>
+      </section>
+
+      <section class="panel" data-panel="indsigt" role="tabpanel" hidden>
+        <div><p class="eyebrow">Til data- &amp; kundechefen</p><h2 class="sec">Hvad kortet fortæller</h2></div>
+        <div id="insightView"></div>
+      </section>
+    </main>
+  </div>
+  <p class="note">Pilot-program · kører i browseren på butikkens computer. Data ligger i en EU-hostet database. Kunder og tal er opdigtede.</p>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(function(){
+  "use strict";
+  var SUPABASE_URL = "https://dijimjbukewrwdlvxkin.supabase.co";
+  var SUPABASE_KEY = "sb_publishable_9UX2sQZ4uzTXumkZBCMU5w_gaotRiN-";
+  var GOAL_FALLBACK = 9;
+  var SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  var meta = { categories:[], stores:[] };
+  var ui = { tab:"kasse", customer:null, notFound:null, cardCustomer:null, busy:false };
+
+  /* ---------- data ---------- */
+  async function rpc(fn, params){
+    var res = await SB.rpc(fn, params||{});
+    if(res.error) throw new Error(res.error.message || "Databasefejl");
+    return res.data;
+  }
+  function setLive(ok){
+    var el=document.getElementById("live");
+    document.getElementById("liveText").textContent = ok ? "Live" : "Offline";
+    el.classList.toggle("off", !ok);
+  }
+
+  /* ---------- helpers ---------- */
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m];}); }
+  function norm(p){ return String(p||"").replace(/[^0-9]/g,""); }
+  function fmtPhone(p){ return String(p||"").replace(/(\d{2})(?=\d)/g,"$1 ").trim(); }
+  function daysSince(iso){ if(!iso) return null; return Math.floor((Date.now()-new Date(iso).getTime())/86400000); }
+  function fmtDate(iso){ if(!iso) return ""; var d=new Date(iso); var m=["jan.","feb.","mar.","apr.","maj","jun.","jul.","aug.","sep.","okt.","nov.","dec."]; return d.getDate()+". "+m[d.getMonth()]; }
+  function catColor(id){ for(var i=0;i<meta.categories.length;i++) if(meta.categories[i].id===id) return meta.categories[i].color; return "#1f7a3d"; }
+
+  var toastT;
+  function toast(msg){ var el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(function(){el.classList.remove("show");},2400); }
+
+  function icon(name,size){
+    var s=size||24, a='width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+    if(name==="check")  return '<svg '+a+'><path d="M20 6 9 17l-5-5"/></svg>';
+    if(name==="gift")   return '<svg '+a+'><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v9h14v-9M12 8S11 3 8.5 3 6 6 6 6s.5 2 6 2ZM12 8s1-5 3.5-5S18 6 18 6s-.5 2-6 2Z"/></svg>';
+    if(name==="alert")  return '<svg '+a+'><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>';
+    if(name==="import") return '<svg '+a+'><path d="M12 3v12M8 11l4 4 4-4M4 21h16"/></svg>';
+    if(name==="store")  return '<svg '+a+'><path d="M3 9 5 3h14l2 6M4 9v11h16V9M4 9h16"/></svg>';
+    return "";
+  }
+
+  /* ---------- render: customer (Kassen) ---------- */
+  function dotsHTML(stamps, goal){
+    var out="";
+    for(var i=0;i<goal;i++) out += (i<stamps)
+      ? '<div class="dot" style="border-style:solid;border-color:var(--brand);background:var(--brand);color:#fff">'+icon("check")+'</div>'
+      : '<div class="dot"></div>';
+    out += '<div class="dot gift">'+icon("gift")+'</div>';
+    return out;
+  }
+
+  function renderCust(){
+    var host=document.getElementById("custView");
+    if(ui.notFound){
+      var cats = meta.stores; // noop
+      host.innerHTML='<div class="empty"><b>Ingen kunde med '+fmtPhone(ui.notFound)+'</b>'+
+        '<p style="margin:8px 0 2px">Opret medlemmet nu – med samtykke.</p>'+
+        '<div class="createbox"><input id="createName" placeholder="Kundens navn" autocomplete="off">'+
+        '<div class="consent-check"><input type="checkbox" id="createConsent">'+
+        '<label for="createConsent"><b>Samtykke.</b> Kunden accepterer, at der gemmes navn, telefonnr. og køb til klubben. Kan trækkes tilbage når som helst. (GDPR art. 6.1.a)</label></div>'+
+        '<button class="btn block" data-act="create">Opret medlem</button></div></div>';
+      return;
+    }
+    var c=ui.customer;
+    if(!c){ host.innerHTML=""; return; }
+
+    var h='<div class="cust"><div class="cust-head"><div class="who"><b>'+esc(c.name)+'</b>'+
+      '<span>'+fmtPhone(c.phone)+(c.email?' · '+esc(c.email):'')+'</span>'+
+      '<div class="metaline">'+
+        (c.imported?'<span class="mtag imp">'+icon("import",12)+' Importeret</span>':'')+
+        (c.consent?'<span class="mtag ok">'+icon("check",12)+' Samtykke</span>':'<span class="mtag wait">'+icon("alert",12)+' Afventer samtykke</span>')+
+        '<span class="mtag cross">'+icon("store",12)+' Alle butikker</span>'+
+      '</div></div></div>';
+
+    if(!c.consent){
+      h+='<div class="consent-prompt"><b>Importeret – men ikke medlem endnu</b>'+
+         '<p>Kunden skal give samtykke, før køb kan optjenes. Spørg ved kassen og registrér det her.</p>'+
+         '<button class="btn wheat sm" data-act="consent">Registrér samtykke</button></div>';
+    }
+
+    var cards = c.cards||[];
+    if(cards.length){
+      h+='<div class="cats">';
+      cards.forEach(function(p){
+        var goal=p.goal||GOAL_FALLBACK, ready=p.stamps>=goal, shown=Math.min(p.stamps,goal);
+        h+='<div class="catcard'+(ready?' ready':'')+'"><div class="cc-head">'+
+             '<span class="cc-dot" style="background:'+esc(p.color)+'"></span>'+
+             '<b>'+esc(p.name)+'</b><span class="u">'+esc(p.unit)+'</span>'+
+             '<span class="cnt">'+shown+' / '+goal+'</span></div>'+
+           '<div class="dots">'+dotsHTML(shown,goal)+'</div>';
+        if(ready) h+='<div class="cc-reward"><span style="color:var(--warn)">'+icon("gift",22)+'</span>'+
+             '<div class="tx"><b>Gratis '+esc(p.unit)+' klar</b><span>Den 10. '+esc(p.name.toLowerCase())+' er gratis</span></div>'+
+             '<button class="btn wheat sm" data-act="redeem" data-cat="'+esc(p.category_id)+'">Indløs</button></div>';
+        h+='</div>';
+      });
+      h+='</div>';
+    } else if(c.consent){
+      h+='<div class="cats"><p class="hint" style="padding:2px 2px">Ingen stempler endnu – registrér kundens første køb nedenfor.</p></div>';
+    }
+
+    if(c.consent){
+      var opts=meta.categories.map(function(k){ return '<option value="'+esc(k.id)+'">'+esc(k.name)+'</option>'; }).join("");
+      var stores=meta.stores.map(function(s){ return '<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>'; }).join("");
+      h+='<div class="register"><span class="lbl">Registrér nyt køb</span>'+
+         '<div class="grid"><select id="catSel" aria-label="Varegruppe">'+opts+'</select>'+
+         '<input id="qtyInput" inputmode="numeric" value="1" aria-label="Antal">'+
+         '<select id="storeSel" class="full" aria-label="Butik">'+stores+'</select></div>'+
+         '<div style="margin-top:8px"><button class="btn block" data-act="add">Tilføj stempler</button></div>'+
+         '<p class="hint" style="margin-top:8px">1 stempel pr. enhed. 9 stempler → den 10. gratis.</p></div>';
+    }
+
+    h+='<div class="hist"><h4>Historik</h4><ul>';
+    (c.history||[]).forEach(function(it){
+      if(it.type==="reward") h+='<li><div><div class="h-main">Gratis '+esc((it.name||"").toLowerCase())+'</div><div class="h-sub">'+fmtDate(it.at)+'</div></div><div class="h-amt reward">−1 '+esc(it.unit)+'</div></li>';
+      else h+='<li><div><div class="h-main">'+esc(it.name)+'</div><div class="h-sub">'+fmtDate(it.at)+(it.store?' · '+esc(it.store):'')+'</div></div><div class="h-amt">+'+it.qty+'</div></li>';
+    });
+    if(!(c.history||[]).length) h+='<li><div class="h-sub">Ingen historik endnu</div></li>';
+    h+='</ul></div></div>';
+    host.innerHTML=h;
+  }
+
+  /* ---------- render: card tab ---------- */
+  async function renderCardTab(){
+    var sel=document.getElementById("cardSelect");
+    if(!sel.options.length){
+      try{
+        var list=await rpc("lof_customers_brief");
+        sel.innerHTML=list.map(function(c){ return '<option value="'+esc(c.phone)+'">'+esc(c.name)+'</option>'; }).join("");
+      }catch(e){ document.getElementById("cardView").innerHTML='<div class="center">Kunne ikke hente kunder.</div>'; return; }
+    }
+    var phone = sel.value || (sel.options[0] && sel.options[0].value);
+    if(!phone){ document.getElementById("cardView").innerHTML=""; return; }
+    document.getElementById("cardView").innerHTML='<div class="center"><div class="spin"></div>Henter kort…</div>';
+    var c;
+    try{ c=await rpc("lof_lookup",{p_phone:phone}); }catch(e){ document.getElementById("cardView").innerHTML='<div class="center">Fejl: '+esc(e.message)+'</div>'; return; }
+    if(!c){ document.getElementById("cardView").innerHTML=""; return; }
+    var cards=(c.cards||[]);
+    var body;
+    if(!c.consent) body='<div class="foot" style="opacity:.95">Afventer samtykke – bliver medlem, når kunden takker ja i butikken.</div>';
+    else if(!cards.length) body='<div class="foot">Ingen stempler endnu. Første køb starter kortet.</div>';
+    else body='<div class="mc-cats">'+cards.map(function(p){
+        var goal=p.goal||GOAL_FALLBACK, shown=Math.min(p.stamps,goal), dots="";
+        for(var i=0;i<goal;i++) dots+='<div class="md'+(i<shown?" on":"")+'"></div>';
+        dots+='<div class="md gift"></div>';
+        var toGo=Math.max(0,goal-p.stamps);
+        return '<div class="mc-cat"><div class="l"><b>'+esc(p.name)+'</b><span>'+(toGo===0?'Gratis klar':(toGo+' til gratis'))+'</span></div><div class="mc-dots">'+dots+'</div></div>';
+      }).join("")+'</div>';
+    document.getElementById("cardView").innerHTML=
+      '<div class="memcard"><div class="pat"></div><div class="in">'+
+        '<div class="top"><small>Land &amp; Fritid Klub</small><small>'+(c.imported?"Importeret medlem":"Medlem")+'</small></div>'+
+        '<div class="name">'+esc(c.name)+'</div><div class="phone">'+fmtPhone(c.phone)+'</div>'+
+        body+'<div class="foot">Samme kort i alle butikker</div>'+
+      '</div></div>';
+  }
+
+  /* ---------- render: insights ---------- */
+  async function renderInsights(){
+    var host=document.getElementById("insightView");
+    host.innerHTML='<div class="center"><div class="spin"></div>Henter tal…</div>';
+    var s;
+    try{ s=await rpc("lof_insights"); }catch(e){ host.innerHTML='<div class="center">Fejl: '+esc(e.message)+'</div>'; return; }
+    var max=1; (s.categories||[]).forEach(function(x){ if(x.total>max) max=x.total; });
+    var h='<div class="ins-grid" style="margin-bottom:14px">'+
+      '<div class="ins-tile"><b>'+s.members+'</b><span>Medlemmer</span></div>'+
+      '<div class="ins-tile"><b>'+s.active+'</b><span>Aktive</span></div>'+
+      '<div class="ins-tile"><b>'+s.rewards_given+'</b><span>Gratis varer givet</span></div>'+
+      '<div class="ins-tile risk"><b>'+s.at_risk+'</b><span>Kunder i risiko</span></div>'+
+    '</div>';
+    h+='<div class="block" style="margin-bottom:14px"><h4>Populære varegrupper (stempler i alt)</h4>';
+    (s.categories||[]).forEach(function(x){
+      h+='<div class="toprow"><span class="nm"><i style="background:'+esc(x.color)+'"></i>'+esc(x.name)+'</span>'+
+         '<span class="topbar"><i style="width:'+Math.round(x.total/max*100)+'%;background:'+esc(x.color)+'"></i></span>'+
+         '<span class="val">'+x.total+'</span></div>';
+    });
+    if(!(s.categories||[]).length) h+='<p class="hint">Ingen stempler endnu.</p>';
+    h+='</div>';
+    if(s.awaiting_consent>0) h+='<div class="block"><h4>Klar til at aktivere</h4><p class="hint" style="margin:0"><b style="color:var(--ink)">'+s.awaiting_consent+' importerede kunder</b> mangler kun et samtykke for at blive aktive medlemmer.</p></div>';
+    host.innerHTML=h;
+  }
+
+  /* ---------- KPIs ---------- */
+  async function refreshKpis(){
+    try{
+      var s=await rpc("lof_insights");
+      document.getElementById("k-members").textContent=s.members;
+      document.getElementById("k-active").textContent=s.active;
+      document.getElementById("k-rewards").textContent=s.rewards_given;
+      setLive(true);
+    }catch(e){ setLive(false); }
+  }
+
+  /* ---------- actions ---------- */
+  function busy(on){ ui.busy=on; document.querySelectorAll("button[data-act],#searchBtn").forEach(function(b){ b.disabled=on; }); }
+
+  async function doLookup(phone){
+    phone=norm(phone);
+    document.getElementById("custView").innerHTML='<div class="center"><div class="spin"></div>Slår op…</div>';
+    try{
+      var c=await rpc("lof_lookup",{p_phone:phone});
+      if(c){ ui.customer=c; ui.notFound=null; } else { ui.customer=null; ui.notFound=phone; }
+      setLive(true);
+    }catch(e){ setLive(false); document.getElementById("custView").innerHTML='<div class="center">Kunne ikke oprette forbindelse. Prøv igen.</div>'; return; }
+    renderCust();
+  }
+  async function doAdd(){
+    var cat=document.getElementById("catSel").value, qty=parseInt(norm(document.getElementById("qtyInput").value),10), store=document.getElementById("storeSel").value;
+    if(!qty||qty<=0){ toast("Angiv et antal"); return; }
+    busy(true);
+    try{
+      var c=await rpc("lof_add_purchase",{p_customer:ui.customer.id,p_category:cat,p_qty:qty,p_store:store});
+      ui.customer=c; renderCust(); refreshKpis();
+      var card=(c.cards||[]).filter(function(x){return x.category_id===cat;})[0];
+      toast((card && card.stamps>=(card.goal||9)) ? "Bogført · gratis vare klar! 🎉" : "Bogført · +"+qty+" stempel");
+    }catch(e){ toast("Fejl: "+e.message); }
+    busy(false);
+  }
+  async function doRedeem(cat){
+    busy(true);
+    try{ ui.customer=await rpc("lof_redeem",{p_customer:ui.customer.id,p_category:cat,p_store:(meta.stores[0]||{}).id}); renderCust(); refreshKpis(); toast("🎁 Gratis vare indløst"); }
+    catch(e){ toast("Fejl: "+e.message); }
+    busy(false);
+  }
+  async function doConsent(){
+    busy(true);
+    try{ ui.customer=await rpc("lof_consent",{p_customer:ui.customer.id}); renderCust(); refreshKpis(); toast("Samtykke registreret – kunden er nu medlem"); }
+    catch(e){ toast("Fejl: "+e.message); }
+    busy(false);
+  }
+  async function doCreate(){
+    var name=document.getElementById("createName").value, consent=document.getElementById("createConsent").checked;
+    if(!consent){ toast("Samtykke kræves for at oprette medlem"); return; }
+    busy(true);
+    try{
+      var c=await rpc("lof_create_customer",{p_phone:ui.notFound,p_name:name,p_email:null,p_consent:true});
+      ui.customer=c; ui.notFound=null; renderCust(); refreshKpis();
+      var sel=document.getElementById("cardSelect"); sel.innerHTML="";
+      toast("Medlem oprettet med samtykke");
+    }catch(e){ toast("Fejl: "+e.message); }
+    busy(false);
+  }
+
+  /* ---------- tabs ---------- */
+  function switchTab(name){
+    ui.tab=name;
+    document.querySelectorAll("[data-panel]").forEach(function(p){ p.hidden=(p.getAttribute("data-panel")!==name); });
+    document.querySelectorAll("[data-tab]").forEach(function(b){ b.setAttribute("aria-selected", b.getAttribute("data-tab")===name); });
+    if(name==="kort") renderCardTab();
+    if(name==="indsigt") renderInsights();
+  }
+
+  /* ---------- wiring ---------- */
+  document.getElementById("searchForm").addEventListener("submit", function(e){ e.preventDefault(); doLookup(document.getElementById("searchInput").value); });
+  document.querySelector("nav.tabs").addEventListener("click", function(e){ var b=e.target.closest("[data-tab]"); if(b) switchTab(b.getAttribute("data-tab")); });
+  document.getElementById("cardSelect").addEventListener("change", renderCardTab);
+  document.addEventListener("click", function(e){
+    var el=e.target.closest("[data-act]"); if(!el) return;
+    var act=el.getAttribute("data-act");
+    if(act==="add") doAdd();
+    else if(act==="redeem") doRedeem(el.getAttribute("data-cat"));
+    else if(act==="consent") doConsent();
+    else if(act==="create") doCreate();
+    else if(act==="chip"){ var p=el.getAttribute("data-phone"); document.getElementById("searchInput").value=p; switchTab("kasse"); doLookup(p); }
+  });
+
+  /* ---------- boot ---------- */
+  async function boot(){
+    try{
+      var cats=await rpc("lof_categories"); meta.categories=cats||[];
+      var st=await rpc("lof_stores"); meta.stores=st||[];
+      setLive(true);
+    }catch(e){ setLive(false); toast("Ingen forbindelse til databasen"); }
+    // demo chips
+    try{
+      var brief=await rpc("lof_customers_brief");
+      document.getElementById("demoChips").innerHTML=(brief||[]).slice(0,4).map(function(c){
+        return '<button class="chip" type="button" data-act="chip" data-phone="'+esc(c.phone)+'">'+esc((c.name||"").split(" ")[0])+' · '+fmtPhone(c.phone)+'</button>';
+      }).join("");
+    }catch(e){}
+    refreshKpis();
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
