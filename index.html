@@ -29,14 +29,17 @@
   .wrap{max-width:460px; margin:0 auto; padding:18px 16px}
   .phone{background:var(--surface); border:1px solid var(--line); border-radius:26px; box-shadow:var(--shadow); overflow:hidden}
 
-  header.brand{background:linear-gradient(160deg,var(--brand-deep),var(--brand)); color:#fff; padding:18px 18px 16px; position:relative}
+  header.brand{background:linear-gradient(160deg,var(--brand-deep),var(--brand)); color:#fff; padding:16px 18px 16px; position:relative}
+  .hdr-top{display:flex; justify-content:space-between; align-items:center; gap:10px; min-height:22px; margin-bottom:6px}
   .brandrow{display:flex; align-items:center; gap:11px}
   .mark{width:38px;height:38px;flex:0 0 auto;display:grid;place-items:center;background:rgba(255,255,255,.14);border-radius:11px}
   .brand h1{font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:23px; margin:0}
-  .live{position:absolute; top:16px; right:16px; font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; display:flex; align-items:center; gap:5px; color:rgba(255,255,255,.9)}
+  .live{font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; display:flex; align-items:center; gap:5px; color:rgba(255,255,255,.9)}
   .live .d{width:7px;height:7px;border-radius:50%;background:#6ee7a0;box-shadow:0 0 0 0 rgba(110,231,160,.6); animation:pulse 2s infinite}
   .live.off .d{background:#e0a94a; animation:none}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(110,231,160,.5)}70%{box-shadow:0 0 0 6px rgba(110,231,160,0)}100%{box-shadow:0 0 0 0 rgba(110,231,160,0)}}
+  .logout{background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22); color:#fff; font-family:inherit; font-weight:700; font-size:11px; letter-spacing:.3px; border-radius:9px; padding:5px 10px; cursor:pointer}
+  .logout:hover{background:rgba(255,255,255,.24)}
   .brand p{margin:9px 2px 0; font-size:12px; color:rgba(255,255,255,.85); line-height:1.4}
   .kpirow{display:flex; gap:8px; margin-top:14px}
   .kpi{flex:1; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.16); border-radius:12px; padding:9px 10px}
@@ -67,6 +70,17 @@
   .chip{font-size:12px; font-weight:600; color:var(--ink-soft); background:var(--surface-2); border:1px solid var(--line); border-radius:20px; padding:5px 11px; cursor:pointer}
   .chip:hover{border-color:var(--brand); color:var(--brand)}
   .hint{font-size:12px; color:var(--ink-soft); margin:0}
+
+  /* ---------- login ---------- */
+  .login{max-width:390px; margin:0 auto}
+  .login .card{background:var(--surface); border:1px solid var(--line); border-radius:26px; box-shadow:var(--shadow); padding:28px 24px 24px}
+  .login .mark2{width:48px;height:48px;display:grid;place-items:center;background:linear-gradient(160deg,var(--brand-deep),var(--brand));border-radius:14px;margin:0 auto 14px}
+  .login h1{font-family:"Fraunces",serif; font-weight:600; font-size:22px; text-align:center; margin:0 0 4px}
+  .login p.sub{text-align:center; color:var(--ink-soft); font-size:12.5px; margin:0 0 20px}
+  .login label{font-size:12px; font-weight:700; color:var(--ink-soft); display:block; margin:0 0 5px}
+  .login .field{margin-bottom:13px}
+  .login .err{background:rgba(192,86,47,.1); border:1px solid var(--risk); color:var(--risk); font-size:12.5px; font-weight:600; border-radius:11px; padding:9px 12px; margin-bottom:13px}
+  .login .foot{text-align:center; font-size:11px; color:var(--ink-soft); margin-top:18px; line-height:1.5}
 
   .cust{border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--surface)}
   .cust-head{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:14px; background:var(--surface-2); border-bottom:1px solid var(--line)}
@@ -158,18 +172,49 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="phone">
+
+  <!-- ---------- LOGIN GATE ---------- -->
+  <div class="login" id="loginView" hidden>
+    <div class="card">
+      <div class="mark2" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3c0 4-2 6-2 9a2 2 0 0 0 4 0c0-3-2-5-2-9Z"/><path d="M12 21v-6M8 12c-1.6.6-3 2-3.5 4M16 12c1.6.6 3 2 3.5 4"/>
+        </svg>
+      </div>
+      <h1 id="loginTitle">Land &amp; Fritid Klub</h1>
+      <p class="sub">Log ind for at betjene klubben. Kun personale har adgang.</p>
+      <form id="loginForm" autocomplete="on">
+        <div class="err" id="loginErr" hidden></div>
+        <div class="field">
+          <label for="loginEmail">Butikkens e-mail</label>
+          <input id="loginEmail" type="email" autocomplete="username" inputmode="email" placeholder="butik@..." required>
+        </div>
+        <div class="field">
+          <label for="loginPass">Adgangskode</label>
+          <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••" required>
+        </div>
+        <button class="btn block" type="submit" id="loginBtn">Log ind</button>
+      </form>
+      <p class="foot">Data ligger i en EU-hostet database. Kun definerede funktioner er tilgængelige, og kun for indloggede medarbejdere.</p>
+    </div>
+  </div>
+
+  <!-- ---------- APP ---------- -->
+  <div class="phone" id="appCard" hidden>
     <header class="brand">
-      <div class="live" id="live"><span class="d"></span><span id="liveText">Live</span></div>
+      <div class="hdr-top">
+        <div class="live" id="live"><span class="d"></span><span id="liveText">Live</span></div>
+        <button class="logout" id="logoutBtn" type="button">Log ud</button>
+      </div>
       <div class="brandrow">
         <div class="mark" aria-hidden="true">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 3c0 4-2 6-2 9a2 2 0 0 0 4 0c0-3-2-5-2-9Z"/><path d="M12 21v-6M8 12c-1.6.6-3 2-3.5 4M16 12c1.6.6 3 2 3.5 4"/>
           </svg>
         </div>
-        <div><h1>Land&nbsp;&amp;&nbsp;Fritid Klub</h1></div>
+        <div><h1 id="brandTitle">Land&nbsp;&amp;&nbsp;Fritid Klub</h1></div>
       </div>
-      <p>Køb 9 – få den 10. gratis. Kører på butikkens computer, samme optjening i alle butikker.</p>
+      <p id="brandTagline">Køb 9 – få den 10. gratis. Kører på butikkens computer, samme optjening i alle butikker.</p>
       <div class="kpirow">
         <div class="kpi"><b id="k-members">–</b><span>Medlemmer</span></div>
         <div class="kpi"><b id="k-active">–</b><span>Aktive</span></div>
@@ -207,21 +252,43 @@
       </section>
     </main>
   </div>
-  <p class="note">Pilot-program · kører i browseren på butikkens computer. Data ligger i en EU-hostet database. Kunder og tal er opdigtede.</p>
+  <p class="note" id="appNote" hidden>Pilot-program · kører i browseren på butikkens computer. Data ligger i en EU-hostet database. Kunder og tal er opdigtede.</p>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
 <script>
 (function(){
   "use strict";
-  var SUPABASE_URL = "https://dijimjbukewrwdlvxkin.supabase.co";
-  var SUPABASE_KEY = "sb_publishable_9UX2sQZ4uzTXumkZBCMU5w_gaotRiN-";
+
+  /* =========================================================
+     SETTINGS — this is the ONLY block you change to reuse the
+     program for another company. Copy this file, edit these
+     values, point it at a new database. Nothing below changes.
+     ========================================================= */
+  var CONFIG = {
+    supabaseUrl: "https://dijimjbukewrwdlvxkin.supabase.co",
+    supabaseKey: "sb_publishable_9UX2sQZ4uzTXumkZBCMU5w_gaotRiN-",
+    brand: {
+      name:     "Land & Fritid Klub",
+      title:    "Land&nbsp;&amp;&nbsp;Fritid Klub",   // header (may contain &nbsp;)
+      tagline:  "Køb 9 – få den 10. gratis. Kører på butikkens computer, samme optjening i alle butikker.",
+      cardLabel:"Land & Fritid Klub"                 // label printed on the member card
+    }
+  };
   var GOAL_FALLBACK = 9;
-  var SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  if(!window.supabase){
+    document.getElementById("loginView").hidden=false;
+    document.getElementById("loginErr").hidden=false;
+    document.getElementById("loginErr").textContent="Kunne ikke indlæse programmet. Genindlæs siden.";
+    return;
+  }
+  var SB = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
 
   var meta = { categories:[], stores:[] };
   var ui = { tab:"kasse", customer:null, notFound:null, cardCustomer:null, busy:false };
+  var booted = false;
 
   /* ---------- data ---------- */
   async function rpc(fn, params){
@@ -269,7 +336,6 @@
   function renderCust(){
     var host=document.getElementById("custView");
     if(ui.notFound){
-      var cats = meta.stores; // noop
       host.innerHTML='<div class="empty"><b>Ingen kunde med '+fmtPhone(ui.notFound)+'</b>'+
         '<p style="margin:8px 0 2px">Opret medlemmet nu – med samtykke.</p>'+
         '<div class="createbox"><input id="createName" placeholder="Kundens navn" autocomplete="off">'+
@@ -364,7 +430,7 @@
       }).join("")+'</div>';
     document.getElementById("cardView").innerHTML=
       '<div class="memcard"><div class="pat"></div><div class="in">'+
-        '<div class="top"><small>Land &amp; Fritid Klub</small><small>'+(c.imported?"Importeret medlem":"Medlem")+'</small></div>'+
+        '<div class="top"><small>'+esc(CONFIG.brand.cardLabel)+'</small><small>'+(c.imported?"Importeret medlem":"Medlem")+'</small></div>'+
         '<div class="name">'+esc(c.name)+'</div><div class="phone">'+fmtPhone(c.phone)+'</div>'+
         body+'<div class="foot">Samme kort i alle butikker</div>'+
       '</div></div>';
@@ -465,7 +531,7 @@
     if(name==="indsigt") renderInsights();
   }
 
-  /* ---------- wiring ---------- */
+  /* ---------- wiring (app) ---------- */
   document.getElementById("searchForm").addEventListener("submit", function(e){ e.preventDefault(); doLookup(document.getElementById("searchInput").value); });
   document.querySelector("nav.tabs").addEventListener("click", function(e){ var b=e.target.closest("[data-tab]"); if(b) switchTab(b.getAttribute("data-tab")); });
   document.getElementById("cardSelect").addEventListener("change", renderCardTab);
@@ -479,14 +545,14 @@
     else if(act==="chip"){ var p=el.getAttribute("data-phone"); document.getElementById("searchInput").value=p; switchTab("kasse"); doLookup(p); }
   });
 
-  /* ---------- boot ---------- */
+  /* ---------- boot (runs only after login) ---------- */
   async function boot(){
+    if(booted) return; booted=true;
     try{
       var cats=await rpc("lof_categories"); meta.categories=cats||[];
       var st=await rpc("lof_stores"); meta.stores=st||[];
       setLive(true);
     }catch(e){ setLive(false); toast("Ingen forbindelse til databasen"); }
-    // demo chips
     try{
       var brief=await rpc("lof_customers_brief");
       document.getElementById("demoChips").innerHTML=(brief||[]).slice(0,4).map(function(c){
@@ -495,7 +561,72 @@
     }catch(e){}
     refreshKpis();
   }
-  boot();
+
+  /* =========================================================
+     AUTH GATE — the front door. The app (and every database
+     call) stays hidden until a real store login succeeds.
+     ========================================================= */
+  function applyBrand(){
+    document.title = CONFIG.brand.name;
+    document.getElementById("brandTitle").innerHTML = CONFIG.brand.title;
+    document.getElementById("brandTagline").textContent = CONFIG.brand.tagline;
+    document.getElementById("loginTitle").textContent = CONFIG.brand.name;
+  }
+
+  function showApp(on){
+    document.getElementById("loginView").hidden = on;
+    document.getElementById("appCard").hidden   = !on;
+    document.getElementById("appNote").hidden   = !on;
+  }
+
+  function enterApp(){
+    showApp(true);
+    boot();
+  }
+
+  function leaveApp(){
+    booted=false; ui.customer=null; ui.notFound=null;
+    var cv=document.getElementById("custView"); if(cv) cv.innerHTML="";
+    var cs=document.getElementById("cardSelect"); if(cs) cs.innerHTML="";
+    showApp(false);
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+    var email=document.getElementById("loginEmail").value.trim();
+    var pass=document.getElementById("loginPass").value;
+    var errEl=document.getElementById("loginErr"); errEl.hidden=true;
+    var btn=document.getElementById("loginBtn"); btn.disabled=true; btn.textContent="Logger ind…";
+    try{
+      var res=await SB.auth.signInWithPassword({ email:email, password:pass });
+      if(res.error){ errEl.textContent="Forkert e-mail eller adgangskode."; errEl.hidden=false; }
+      // success is handled by onAuthStateChange
+    }catch(err){
+      errEl.textContent="Kunne ikke logge ind. Tjek forbindelsen."; errEl.hidden=false;
+    }
+    btn.disabled=false; btn.textContent="Log ind";
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", async function(){
+    try{ await SB.auth.signOut(); }catch(e){}
+    // UI handled by onAuthStateChange; leaveApp() is a safety net
+    leaveApp();
+  });
+
+  async function initAuth(){
+    applyBrand();
+    SB.auth.onAuthStateChange(function(evt, session){
+      if(session){ if(!booted) enterApp(); }
+      else { leaveApp(); }
+    });
+    try{
+      var r=await SB.auth.getSession();
+      if(r && r.data && r.data.session){ enterApp(); }
+      else { showApp(false); }
+    }catch(e){ showApp(false); }
+  }
+
+  initAuth();
 })();
 </script>
 </body>
