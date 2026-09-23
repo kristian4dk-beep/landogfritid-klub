@@ -151,8 +151,8 @@
   .ins-tile{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px}
   .ins-tile b{display:block; font-size:20px; font-weight:800; font-variant-numeric:tabular-nums; font-family:"Fraunces",serif}
   .ins-tile.risk b{color:var(--risk)} .ins-tile span{font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.5px}
-  .block{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:14px}
-  .block h4{margin:0 0 11px; font-size:12px; text-transform:uppercase; letter-spacing:.7px; color:var(--ink-soft)}
+  .iblock{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:14px}
+  .iblock h4{margin:0 0 11px; font-size:12px; text-transform:uppercase; letter-spacing:.7px; color:var(--ink-soft)}
   .toprow{display:flex; align-items:center; gap:10px; padding:6px 0}
   .toprow .nm{font-size:13px; font-weight:600; width:40%; flex:0 0 auto; display:flex; align-items:center; gap:7px}
   .toprow .nm i{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
@@ -449,7 +449,7 @@
       '<div class="ins-tile"><b>'+s.rewards_given+'</b><span>Gratis varer givet</span></div>'+
       '<div class="ins-tile risk"><b>'+s.at_risk+'</b><span>Kunder i risiko</span></div>'+
     '</div>';
-    h+='<div class="block" style="margin-bottom:14px"><h4>Populære varegrupper (stempler i alt)</h4>';
+    h+='<div class="iblock" style="margin-bottom:14px"><h4>Populære varegrupper (stempler i alt)</h4>';
     (s.categories||[]).forEach(function(x){
       h+='<div class="toprow"><span class="nm"><i style="background:'+esc(x.color)+'"></i>'+esc(x.name)+'</span>'+
          '<span class="topbar"><i style="width:'+Math.round(x.total/max*100)+'%;background:'+esc(x.color)+'"></i></span>'+
@@ -457,7 +457,7 @@
     });
     if(!(s.categories||[]).length) h+='<p class="hint">Ingen stempler endnu.</p>';
     h+='</div>';
-    if(s.awaiting_consent>0) h+='<div class="block"><h4>Klar til at aktivere</h4><p class="hint" style="margin:0"><b style="color:var(--ink)">'+s.awaiting_consent+' importerede kunder</b> mangler kun et samtykke for at blive aktive medlemmer.</p></div>';
+    if(s.awaiting_consent>0) h+='<div class="iblock"><h4>Klar til at aktivere</h4><p class="hint" style="margin:0"><b style="color:var(--ink)">'+s.awaiting_consent+' importerede kunder</b> mangler kun et samtykke for at blive aktive medlemmer.</p></div>';
     host.innerHTML=h;
   }
 
