@@ -66,6 +66,10 @@
   .btn.wheat{background:var(--wheat); color:#3a2c07}
   .btn.block{width:100%}
   .btn.sm{padding:8px 12px; font-size:13px; border-radius:10px}
+  .btn.ghost.danger{color:var(--risk); border-color:var(--risk); background:transparent}
+  .btn.ghost.danger:hover{background:rgba(192,86,47,.08)}
+  .gdpr{padding:12px 14px 14px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:6px; align-items:flex-start}
+  .gdpr span{font-size:11px; color:var(--ink-soft)}
   .chips{display:flex; flex-wrap:wrap; gap:6px}
   .chip{font-size:12px; font-weight:600; color:var(--ink-soft); background:var(--surface-2); border:1px solid var(--line); border-radius:20px; padding:5px 11px; cursor:pointer}
   .chip:hover{border-color:var(--brand); color:var(--brand)}
@@ -398,7 +402,10 @@
       else h+='<li><div><div class="h-main">'+esc(it.name)+'</div><div class="h-sub">'+fmtDate(it.at)+(it.store?' · '+esc(it.store):'')+'</div></div><div class="h-amt">+'+it.qty+'</div></li>';
     });
     if(!(c.history||[]).length) h+='<li><div class="h-sub">Ingen historik endnu</div></li>';
-    h+='</ul></div></div>';
+    h+='</ul></div>';
+    h+='<div class="gdpr"><button class="btn ghost sm danger" data-act="delete">Slet kunde (GDPR)</button>'+
+       '<span>Ret til at blive glemt: sletter kunden og al historik permanent. Kan ikke fortrydes.</span></div>';
+    h+='</div>';
     host.innerHTML=h;
   }
 
@@ -509,6 +516,22 @@
     catch(e){ toast("Fejl: "+e.message); }
     busy(false);
   }
+  async function doDelete(){
+    if(!ui.customer) return;
+    var c=ui.customer;
+    if(!window.confirm("Slet "+c.name+" permanent?\n\nAl historik og alle stempler forsvinder. Dette kan IKKE fortrydes (GDPR – ret til at blive glemt).")) return;
+    busy(true);
+    try{
+      await rpc("lof_delete_customer",{p_customer:c.id});
+      ui.customer=null; ui.notFound=null;
+      document.getElementById("custView").innerHTML="";
+      document.getElementById("searchInput").value="";
+      var sel=document.getElementById("cardSelect"); if(sel) sel.innerHTML="";
+      refreshKpis();
+      toast("Kunde slettet permanent (GDPR)");
+    }catch(e){ toast("Fejl: "+e.message); }
+    busy(false);
+  }
   async function doCreate(){
     var name=document.getElementById("createName").value, consent=document.getElementById("createConsent").checked;
     if(!consent){ toast("Samtykke kræves for at oprette medlem"); return; }
@@ -541,6 +564,7 @@
     if(act==="add") doAdd();
     else if(act==="redeem") doRedeem(el.getAttribute("data-cat"));
     else if(act==="consent") doConsent();
+    else if(act==="delete") doDelete();
     else if(act==="create") doCreate();
     else if(act==="chip"){ var p=el.getAttribute("data-phone"); document.getElementById("searchInput").value=p; switchTab("kasse"); doLookup(p); }
   });
