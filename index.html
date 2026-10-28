@@ -164,6 +164,13 @@
   .topbar i{display:block; height:100%}
   .toprow .val{font-size:12.5px; font-weight:800; font-variant-numeric:tabular-nums; width:44px; text-align:right; flex:0 0 auto}
 
+  .wb{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid var(--line)}
+  .wb:last-of-type{border-bottom:0}
+  .wb-main{min-width:0}
+  .wb-main b{font-size:13.5px; font-weight:800; display:block}
+  .wb-main span{font-size:11.5px; color:var(--ink-soft)}
+  .wb-block h4 .cnt{float:right; color:var(--risk); font-weight:800}
+
   .center{padding:30px 16px; text-align:center; color:var(--ink-soft); font-size:13px}
   .spin{width:26px;height:26px;border-radius:50%;border:3px solid var(--line-strong);border-top-color:var(--brand);margin:0 auto 12px;animation:sp .8s linear infinite}
   @keyframes sp{to{transform:rotate(360deg)}}
@@ -291,7 +298,7 @@
   var SB = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
 
   var meta = { categories:[], stores:[] };
-  var ui = { tab:"kasse", customer:null, notFound:null, cardCustomer:null, busy:false };
+  var ui = { tab:"kasse", customer:null, notFound:null, cardCustomer:null, busy:false, atRisk:[] };
   var booted = false;
 
   /* ---------- data ---------- */
@@ -444,11 +451,16 @@
   }
 
   /* ---------- render: insights ---------- */
+  function toGoLabel(n){ return n===1 ? "1 stempel" : n+" stempler"; }
+
   async function renderInsights(){
     var host=document.getElementById("insightView");
     host.innerHTML='<div class="center"><div class="spin"></div>Henter tal…</div>';
-    var s;
+    var s, risk;
     try{ s=await rpc("lof_insights"); }catch(e){ host.innerHTML='<div class="center">Fejl: '+esc(e.message)+'</div>'; return; }
+    try{ risk=await rpc("lof_at_risk"); }catch(e){ risk=[]; }
+    ui.atRisk = risk||[];
+
     var max=1; (s.categories||[]).forEach(function(x){ if(x.total>max) max=x.total; });
     var h='<div class="ins-grid" style="margin-bottom:14px">'+
       '<div class="ins-tile"><b>'+s.members+'</b><span>Medlemmer</span></div>'+
@@ -456,6 +468,22 @@
       '<div class="ins-tile"><b>'+s.rewards_given+'</b><span>Gratis varer givet</span></div>'+
       '<div class="ins-tile risk"><b>'+s.at_risk+'</b><span>Kunder i risiko</span></div>'+
     '</div>';
+
+    /* ---- win-back list: turns "at risk" into an action ---- */
+    h+='<div class="iblock wb-block" style="margin-bottom:14px"><h4>Vind tilbage · ikke set i 45+ dage'+
+       (ui.atRisk.length?'<span class="cnt">'+ui.atRisk.length+'</span>':'')+'</h4>';
+    if(ui.atRisk.length){
+      ui.atRisk.forEach(function(m){
+        h+='<div class="wb"><div class="wb-main"><b>'+esc(m.name)+'</b>'+
+           '<span>'+m.days_since+' dage siden · '+esc(m.category)+' '+m.stamps+'/'+m.goal+' · mangler '+esc(toGoLabel(m.to_go))+'</span></div>'+
+           '<button class="btn wheat sm" data-act="winback" data-phone="'+esc(m.phone)+'">Kopiér påmindelse</button></div>';
+      });
+      h+='<p class="hint" style="margin-top:9px">Medlemmer med stempler, der er holdt op med at komme. Påmindelsen kopieres klar til jeres klub-nyhedsbrev eller SMS.</p>';
+    } else {
+      h+='<p class="hint" style="margin:0">Ingen medlemmer i farezonen lige nu. 🎉</p>';
+    }
+    h+='</div>';
+
     h+='<div class="iblock" style="margin-bottom:14px"><h4>Populære varegrupper (stempler i alt)</h4>';
     (s.categories||[]).forEach(function(x){
       h+='<div class="toprow"><span class="nm"><i style="background:'+esc(x.color)+'"></i>'+esc(x.name)+'</span>'+
@@ -545,6 +573,21 @@
     busy(false);
   }
 
+  function doWinback(phone){
+    var m=(ui.atRisk||[]).filter(function(x){ return String(x.phone)===String(phone); })[0];
+    if(!m){ toast("Kunne ikke finde kunden"); return; }
+    var first=String(m.name||"").split(" ")[0];
+    var msg="Hej "+first+"! Du mangler kun "+toGoLabel(m.to_go)+" til en gratis "+m.unit+" "+String(m.category).toLowerCase()+" i "+CONFIG.brand.name+". Vi glæder os til at se dig i butikken igen. 🌿";
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(msg).then(
+        function(){ toast("Påmindelse kopieret – indsæt i nyhedsbrev/SMS"); },
+        function(){ window.prompt("Kopiér påmindelsen:", msg); }
+      );
+    } else {
+      window.prompt("Kopiér påmindelsen:", msg);
+    }
+  }
+
   /* ---------- tabs ---------- */
   function switchTab(name){
     ui.tab=name;
@@ -566,6 +609,7 @@
     else if(act==="consent") doConsent();
     else if(act==="delete") doDelete();
     else if(act==="create") doCreate();
+    else if(act==="winback") doWinback(el.getAttribute("data-phone"));
     else if(act==="chip"){ var p=el.getAttribute("data-phone"); document.getElementById("searchInput").value=p; switchTab("kasse"); doLookup(p); }
   });
 
