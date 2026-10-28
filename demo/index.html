@@ -164,6 +164,13 @@
   .topbar i{display:block; height:100%}
   .toprow .val{font-size:12.5px; font-weight:800; font-variant-numeric:tabular-nums; width:44px; text-align:right; flex:0 0 auto}
 
+  .wb{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid var(--line)}
+  .wb:last-of-type{border-bottom:0}
+  .wb-main{min-width:0}
+  .wb-main b{font-size:13.5px; font-weight:800; display:block}
+  .wb-main span{font-size:11.5px; color:var(--ink-soft)}
+  .wb-block h4 .cnt{float:right; color:var(--risk); font-weight:800}
+
   .center{padding:30px 16px; text-align:center; color:var(--ink-soft); font-size:13px}
   .spin{width:26px;height:26px;border-radius:50%;border:3px solid var(--line-strong);border-top-color:var(--brand);margin:0 auto 12px;animation:sp .8s linear infinite}
   @keyframes sp{to{transform:rotate(360deg)}}
@@ -294,7 +301,7 @@
   var SB = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
 
   var meta = { categories:[], stores:[] };
-  var ui = { tab:"kasse", customer:null, notFound:null, cardCustomer:null, busy:false };
+  var ui = { tab:"kasse", customer:null, notFound:null, cardCustomer:null, busy:false, atRisk:[] };
   var booted = false;
 
   /* ---------- data ---------- */
@@ -302,32 +309,50 @@
   var DB = {
     cats:[
       {id:'hunde',name:'Hundefoder',unit:'pose',color:'#6b8e23'},
-      {id:'heste',name:'Hestefoder',unit:'saek',color:'#b5651d'},
-      {id:'hons',name:'Honsefoder',unit:'pose',color:'#c9a24b'},
+      {id:'heste',name:'Hestefoder',unit:'sæk',color:'#b5651d'},
+      {id:'hons',name:'Hønsefoder',unit:'pose',color:'#c9a24b'},
       {id:'fugle',name:'Vildtfuglefoder',unit:'pose',color:'#4a7ba6'},
-      {id:'godning',name:'Godning',unit:'saek',color:'#7a9e3a'},
-      {id:'traepiller',name:'Traepiller',unit:'palle',color:'#8a5a2b'}
+      {id:'godning',name:'Gødning',unit:'sæk',color:'#7a9e3a'},
+      {id:'traepiller',name:'Træpiller',unit:'palle',color:'#8a5a2b'}
     ],
     stores:[{id:'s1',name:'Land & Fritid Hinnerup'},{id:'s2',name:'Land & Fritid Ringsted'}],
     custs:{
-      'c1':{id:'c1',name:'Jens Overgaard',phone:'20304050',email:null,imported:true,consent:true,
+      'c1':{id:'c1',name:'Jens Overgaard',phone:'20304050',email:null,imported:true,consent:true,d:6,
         cards:[{category_id:'hunde',name:'Hundefoder',unit:'pose',color:'#6b8e23',stamps:7,goal:9},
-               {category_id:'heste',name:'Hestefoder',unit:'saek',color:'#b5651d',stamps:3,goal:9}],
-        history:[{name:'Hundefoder',at:'2026-10-20',store:'Hinnerup',qty:2},
+               {category_id:'heste',name:'Hestefoder',unit:'sæk',color:'#b5651d',stamps:3,goal:9}],
+        history:[{name:'Hundefoder',at:'2026-10-22',store:'Hinnerup',qty:2},
                  {name:'Hestefoder',at:'2026-10-12',store:'Hinnerup',qty:1}]},
-      'c2':{id:'c2',name:'Landbrug Sondergaard I/S',phone:'60708090',email:null,imported:false,consent:true,
-        cards:[{category_id:'heste',name:'Hestefoder',unit:'saek',color:'#b5651d',stamps:9,goal:9}],
-        history:[{name:'Hestefoder',at:'2026-10-18',store:'Hinnerup',qty:3}]},
-      'c3':{id:'c3',name:'Mette Kjaer',phone:'51627384',email:null,imported:true,consent:true,
-        cards:[{category_id:'hons',name:'Honsefoder',unit:'pose',color:'#c9a24b',stamps:4,goal:9}],
-        history:[{name:'Honsefoder',at:'2026-10-15',store:'Hinnerup',qty:2}]},
-      'c4':{id:'c4',name:'Bodil Ravn',phone:'42536475',email:null,imported:true,consent:false,cards:[],history:[]}
+      'c2':{id:'c2',name:'Landbrug Søndergaard I/S',phone:'60708090',email:null,imported:false,consent:true,d:30,
+        cards:[{category_id:'heste',name:'Hestefoder',unit:'sæk',color:'#b5651d',stamps:9,goal:9}],
+        history:[{name:'Hestefoder',at:'2026-09-28',store:'Hinnerup',qty:3}]},
+      'c3':{id:'c3',name:'Mette Kjær',phone:'51627384',email:null,imported:true,consent:true,d:52,
+        cards:[{category_id:'hons',name:'Hønsefoder',unit:'pose',color:'#c9a24b',stamps:4,goal:9}],
+        history:[{name:'Hønsefoder',at:'2026-09-06',store:'Hinnerup',qty:2}]},
+      'c4':{id:'c4',name:'Bodil Ravn',phone:'42536475',email:null,imported:true,consent:false,d:140,cards:[],history:[]},
+      'c5':{id:'c5',name:'Preben Holm',phone:'30405060',email:null,imported:false,consent:true,d:68,
+        cards:[{category_id:'hunde',name:'Hundefoder',unit:'pose',color:'#6b8e23',stamps:6,goal:9}],
+        history:[{name:'Hundefoder',at:'2026-08-21',store:'Ringsted',qty:2}]}
     }
   };
   function demoCat(id){ for(var i=0;i<DB.cats.length;i++) if(DB.cats[i].id===id) return DB.cats[i]; return {id:id,name:id,unit:'stk',color:'#1f7a3d'}; }
   function demoStoreName(id){ for(var i=0;i<DB.stores.length;i++) if(DB.stores[i].id===id) return DB.stores[i].name.replace('Land & Fritid ',''); return ''; }
   function demoById(id){ return DB.custs[id]||null; }
   function demoByPhone(p){ p=String(p).replace(/[^0-9]/g,''); for(var k in DB.custs){ if(DB.custs[k].phone===p) return DB.custs[k]; } return null; }
+  function demoStamped(c){ return (c.cards||[]).filter(function(cd){return cd.stamps>0;}); }
+  function demoAtRisk(){
+    var out=[];
+    for(var k in DB.custs){ var c=DB.custs[k];
+      if(!c.consent) continue;
+      var cards=demoStamped(c);
+      if(!cards.length) continue;
+      if(!(c.d>45)) continue;
+      var top=cards.slice().sort(function(a,b){ return (a.goal-a.stamps)-(b.goal-b.stamps); })[0];
+      out.push({id:c.id,name:c.name,phone:c.phone,days_since:c.d,category:top.name,unit:top.unit,
+                color:top.color,stamps:top.stamps,goal:top.goal,to_go:Math.max(0,top.goal-top.stamps)});
+    }
+    out.sort(function(a,b){ return b.days_since-a.days_since; });
+    return out;
+  }
   async function rpc(fn, params){
     params = params||{};
     if(fn==='lof_categories') return DB.cats;
@@ -338,18 +363,20 @@
       for(var k in DB.custs){ var c=DB.custs[k];
         if(c.consent) members++; else awaiting++;
         var has=false; (c.cards||[]).forEach(function(cd){ if(cd.stamps>0) has=true; tot[cd.name]=(tot[cd.name]||0)+cd.stamps; });
-        if(c.consent&&has) active++;
+        if(c.consent&&has&&c.d<=45) active++;
       }
       var cats=[]; DB.cats.forEach(function(ct){ if(tot[ct.name]) cats.push({name:ct.name,color:ct.color,total:tot[ct.name]}); });
       cats.sort(function(a,b){return b.total-a.total;});
-      return {members:members,active:active,rewards_given:1,at_risk:1,awaiting_consent:awaiting,categories:cats};
+      return {members:members,active:active,rewards_given:1,at_risk:demoAtRisk().length,awaiting_consent:awaiting,categories:cats};
     }
+    if(fn==='lof_at_risk') return demoAtRisk();
     if(fn==='lof_lookup') return demoByPhone(params.p_phone);
     if(fn==='lof_add_purchase'){
       var c=demoById(params.p_customer); if(!c) return c;
       var card=null; (c.cards||[]).forEach(function(cd){ if(cd.category_id===params.p_category) card=cd; });
       if(!card){ var m=demoCat(params.p_category); card={category_id:m.id,name:m.name,unit:m.unit,color:m.color,stamps:0,goal:9}; c.cards.push(card); }
       card.stamps += (params.p_qty||1);
+      c.d = 0;
       c.history.unshift({name:card.name,at:new Date().toISOString(),store:demoStoreName(params.p_store),qty:(params.p_qty||1)});
       return c;
     }
@@ -360,7 +387,7 @@
     }
     if(fn==='lof_consent'){ var c=demoById(params.p_customer); if(c) c.consent=true; return c; }
     if(fn==='lof_create_customer'){ var p=String(params.p_phone).replace(/[^0-9]/g,''); var id='n'+p;
-      DB.custs[id]={id:id,name:params.p_name||'Ny kunde',phone:p,email:params.p_email||null,imported:false,consent:!!params.p_consent,cards:[],history:[]}; return DB.custs[id]; }
+      DB.custs[id]={id:id,name:params.p_name||'Ny kunde',phone:p,email:params.p_email||null,imported:false,consent:!!params.p_consent,d:0,cards:[],history:[]}; return DB.custs[id]; }
     if(fn==='lof_delete_customer'){ var c=demoById(params.p_customer); if(c){ delete DB.custs[params.p_customer]; return {deleted:true,name:c.name}; } return {deleted:false}; }
     return {};
   }
@@ -508,11 +535,16 @@
   }
 
   /* ---------- render: insights ---------- */
+  function toGoLabel(n){ return n===1 ? "1 stempel" : n+" stempler"; }
+
   async function renderInsights(){
     var host=document.getElementById("insightView");
     host.innerHTML='<div class="center"><div class="spin"></div>Henter tal…</div>';
-    var s;
+    var s, risk;
     try{ s=await rpc("lof_insights"); }catch(e){ host.innerHTML='<div class="center">Fejl: '+esc(e.message)+'</div>'; return; }
+    try{ risk=await rpc("lof_at_risk"); }catch(e){ risk=[]; }
+    ui.atRisk = risk||[];
+
     var max=1; (s.categories||[]).forEach(function(x){ if(x.total>max) max=x.total; });
     var h='<div class="ins-grid" style="margin-bottom:14px">'+
       '<div class="ins-tile"><b>'+s.members+'</b><span>Medlemmer</span></div>'+
@@ -520,6 +552,22 @@
       '<div class="ins-tile"><b>'+s.rewards_given+'</b><span>Gratis varer givet</span></div>'+
       '<div class="ins-tile risk"><b>'+s.at_risk+'</b><span>Kunder i risiko</span></div>'+
     '</div>';
+
+    /* ---- win-back list: turns "at risk" into an action ---- */
+    h+='<div class="iblock wb-block" style="margin-bottom:14px"><h4>Vind tilbage · ikke set i 45+ dage'+
+       (ui.atRisk.length?'<span class="cnt">'+ui.atRisk.length+'</span>':'')+'</h4>';
+    if(ui.atRisk.length){
+      ui.atRisk.forEach(function(m){
+        h+='<div class="wb"><div class="wb-main"><b>'+esc(m.name)+'</b>'+
+           '<span>'+m.days_since+' dage siden · '+esc(m.category)+' '+m.stamps+'/'+m.goal+' · mangler '+esc(toGoLabel(m.to_go))+'</span></div>'+
+           '<button class="btn wheat sm" data-act="winback" data-phone="'+esc(m.phone)+'">Kopiér påmindelse</button></div>';
+      });
+      h+='<p class="hint" style="margin-top:9px">Medlemmer med stempler, der er holdt op med at komme. Påmindelsen kopieres klar til jeres klub-nyhedsbrev eller SMS.</p>';
+    } else {
+      h+='<p class="hint" style="margin:0">Ingen medlemmer i farezonen lige nu. 🎉</p>';
+    }
+    h+='</div>';
+
     h+='<div class="iblock" style="margin-bottom:14px"><h4>Populære varegrupper (stempler i alt)</h4>';
     (s.categories||[]).forEach(function(x){
       h+='<div class="toprow"><span class="nm"><i style="background:'+esc(x.color)+'"></i>'+esc(x.name)+'</span>'+
@@ -609,6 +657,21 @@
     busy(false);
   }
 
+  function doWinback(phone){
+    var m=(ui.atRisk||[]).filter(function(x){ return String(x.phone)===String(phone); })[0];
+    if(!m){ toast("Kunne ikke finde kunden"); return; }
+    var first=String(m.name||"").split(" ")[0];
+    var msg="Hej "+first+"! Du mangler kun "+toGoLabel(m.to_go)+" til en gratis "+m.unit+" "+String(m.category).toLowerCase()+" i "+CONFIG.brand.name+". Vi glæder os til at se dig i butikken igen. 🌿";
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(msg).then(
+        function(){ toast("Påmindelse kopieret – indsæt i nyhedsbrev/SMS"); },
+        function(){ window.prompt("Kopiér påmindelsen:", msg); }
+      );
+    } else {
+      window.prompt("Kopiér påmindelsen:", msg);
+    }
+  }
+
   /* ---------- tabs ---------- */
   function switchTab(name){
     ui.tab=name;
@@ -630,6 +693,7 @@
     else if(act==="consent") doConsent();
     else if(act==="delete") doDelete();
     else if(act==="create") doCreate();
+    else if(act==="winback") doWinback(el.getAttribute("data-phone"));
     else if(act==="chip"){ var p=el.getAttribute("data-phone"); document.getElementById("searchInput").value=p; switchTab("kasse"); doLookup(p); }
   });
 
